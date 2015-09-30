@@ -1,0 +1,20 @@
+.form-signin {
+    max-width: 300px;
+    margin: auto;
+}
+
+#write_order {
+    margin-bottom: 10px;
+}
+
+.intext {
+    margin-bottom: 5px;
+}
+
+.container {
+    max-width: 800px;
+}
+
+.role_selector {
+    margin-bottom: 5px;
+}
