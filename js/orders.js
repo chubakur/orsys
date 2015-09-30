@@ -15,11 +15,10 @@ orsysApp.controller('RegisterController', function ($scope, $log) {
         email: undefined,
         password: undefined,
         password2: undefined,
-        role: 'performer',
+        role: 'performer'
     };
-    $scope.valid = true;
     $scope.register = function () {
-        if(!$scope.valid) return;
+        if($scope.registerForm.$invalid) return;
         $log.log($scope.form);
     };
 });
@@ -39,7 +38,7 @@ var compareTo = function() {
         },
         link: function($scope, $element, $attributes, $ngModel) {
             $ngModel.$validators.compareTo = function(modelValue) {
-                return modelValue == scope.otherModelValue;
+                return modelValue == $scope.otherModelValue;
             };
 
             $scope.$watch("otherModelValue", function() {

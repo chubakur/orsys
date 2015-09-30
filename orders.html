@@ -60,9 +60,18 @@
             </div>
             <div class="modal-body">
                 <form novalidate class="form-signin" name="registerForm">
-                    <input ng-model="form.email" name="email" type="email" class="form-control intext" placeholder="Email" required autofocus>
-                    <input ng-model="form.password" name="password" type="password" class="form-control intext" placeholder="Пароль" compare-to="form.password2" required>
-                    <input ng-model="form.password2" name="password2" type="password" class="form-control intext" placeholder="Повторите пароль" required>
+                    <div class="input-group intext">
+                        <input ng-model="form.email" name="email" type="email" class="form-control" placeholder="Email" required autofocus>
+                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.email.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+                    </div>
+                    <div class="input-group intext">
+                        <input ng-model="form.password" name="password" type="password" class="form-control" placeholder="Пароль" required>
+                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+                    </div>
+                    <div class="input-group intext">
+                        <input ng-model="form.password2" name="password2" type="password" class="form-control" compare-to="form.password"  placeholder="Повторите пароль" required>
+                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password2.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+                    </div>
                     <div class="btn-group role_selector" data-toggle="buttons">
                         <label class="btn btn-primary" ng-click="form.role='performer'" ng-class="form.role=='performer'?'active':''">
                             <input type="radio" name="role" id="performer" autocomplete="off">Исполнитель
@@ -79,6 +88,7 @@
                     <li>Email: {{registerForm.email.$valid}}</li>
                     <li>Password: {{registerForm.password.$valid}}</li>
                     <li>Password2: {{registerForm.password2.$valid}}</li>
+                    <li>Role: {{form.role}}</li>
                 </ul>
             </div>
         </div>
