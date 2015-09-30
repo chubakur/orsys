@@ -59,13 +59,10 @@
                 <h4 class="modal-title" id="registerModalLabel">Регистрация в системе</h4>
             </div>
             <div class="modal-body">
-                <form novalidate class="form-signin">
-                    <label for="inputEmail" class="sr-only">E-mail</label>
-                    <input ng-model="form.email" type="email" id="registerEmail" class="form-control intext" placeholder="Email" required autofocus>
-                    <label for="inputPassword" class="sr-only">Пароль</label>
-                    <input ng-model="form.password" type="password" id="registerPassword" class="form-control intext" placeholder="Пароль" required>
-                    <label for="inputPassword" class="sr-only">Пароль</label>
-                    <input ng-model="form.password2" type="password" id="registerPasswordRepeat" class="form-control intext" placeholder="Повторите пароль" required>
+                <form novalidate class="form-signin" name="registerForm">
+                    <input ng-model="form.email" name="email" type="email" class="form-control intext" placeholder="Email" required autofocus>
+                    <input ng-model="form.password" name="password" type="password" class="form-control intext" placeholder="Пароль" compare-to="form.password2" required>
+                    <input ng-model="form.password2" name="password2" type="password" class="form-control intext" placeholder="Повторите пароль" required>
                     <div class="btn-group role_selector" data-toggle="buttons">
                         <label class="btn btn-primary" ng-click="form.role='performer'" ng-class="form.role=='performer'?'active':''">
                             <input type="radio" name="role" id="performer" autocomplete="off">Исполнитель
@@ -74,8 +71,15 @@
                             <input type="radio" name="role" id="client" autocomplete="off">Заказчик
                         </label>
                     </div>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="register()">Регистрация</button>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-class="registerForm.$invalid?'disabled':''" ng-click="register()">Регистрация</button>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <ul>
+                    <li>Email: {{registerForm.email.$valid}}</li>
+                    <li>Password: {{registerForm.password.$valid}}</li>
+                    <li>Password2: {{registerForm.password2.$valid}}</li>
+                </ul>
             </div>
         </div>
     </div>

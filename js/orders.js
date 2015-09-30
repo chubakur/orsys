@@ -16,15 +16,37 @@ orsysApp.controller('RegisterController', function ($scope, $log) {
         password: undefined,
         password2: undefined,
         role: 'performer',
-    }
+    };
+    $scope.valid = true;
     $scope.register = function () {
+        if(!$scope.valid) return;
         $log.log($scope.form);
-    }
+    };
 });
 
 orsysApp.controller('LoginController', function ($scope, $log){
     $log.info("LoginController init");
    $scope.login = function (){
        $log.log("Login");
-   }
+   };
 });
+
+var compareTo = function() {
+    return {
+        require: "ngModel",
+        scope: {
+            otherModelValue: "=compareTo"
+        },
+        link: function($scope, $element, $attributes, $ngModel) {
+            $ngModel.$validators.compareTo = function(modelValue) {
+                return modelValue == scope.otherModelValue;
+            };
+
+            $scope.$watch("otherModelValue", function() {
+                $ngModel.$validate();
+            });
+        }
+    };
+};
+
+orsysApp.directive("compareTo", compareTo);
