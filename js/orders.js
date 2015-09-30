@@ -25,14 +25,18 @@ orsysApp.controller('RegisterController', function ($scope, $http, $log) {
         password2: undefined,
         role: 'performer'
     };
+    $scope.register_status = undefined;
     $scope.register = function () {
-        if($scope.registerForm.$invalid) return;
+        if($scope.registerForm.$invalid || $scope.register_status == "start") return;
+        $scope.register_status = "start";
         var handler = $http.post("/register", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         handler.success(function(data) {
             $log.log(data);
+            $scope.register_status = data.status;
         });
         handler.error(function(data){
             $log.error(data);
+            $scope.register_status = "invalid";
         });
         return true;
     }
