@@ -1,5 +1,13 @@
 var orsysApp = angular.module('orsysApp', []);
 
+function urlencode(data){
+    var args = []
+    for(var key in data){
+        args.push(key+"="+data[key]);
+    }
+    return args.join("&")
+}
+
 orsysApp.controller('OrdersController', function ($scope, $interval, $log) {
     $log.info("OrdersController init");
     $scope.loaded = true;
@@ -9,7 +17,7 @@ orsysApp.controller('OrdersController', function ($scope, $interval, $log) {
     $interval(as, 5000);
 });
 
-orsysApp.controller('RegisterController', function ($scope, $log) {
+orsysApp.controller('RegisterController', function ($scope, $http, $log) {
     $log.info("RegisterController init");
     $scope.form = {
         email: undefined,
@@ -19,8 +27,15 @@ orsysApp.controller('RegisterController', function ($scope, $log) {
     };
     $scope.register = function () {
         if($scope.registerForm.$invalid) return;
-        $log.log($scope.form);
-    };
+        var handler = $http.post("/register", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+        handler.success(function(data) {
+            $log.log(data);
+        });
+        handler.error(function(data){
+            $log.error(data);
+        });
+        return true;
+    }
 });
 
 orsysApp.controller('LoginController', function ($scope, $log){
