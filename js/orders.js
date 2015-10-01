@@ -20,13 +20,17 @@ orsysApp.controller('OrdersController', function (auth, $scope, $modal, $interva
     $scope.auth = auth;
     $log.info("OrdersController init");
     $scope.orders = [];
-    $http.get("/feed").success(function (data){
-        if(data.status == 'ok'){
-            $scope.orders = data.results;
-        }
-    }).error(function (data){
-        $log.error(data);
-    });
+    function loadOrders(){
+        $http.get("/feed").success(function (data){
+            if(data.status == 'ok'){
+                $scope.orders = data.results;
+            }
+        }).error(function (data){
+            $log.error(data);
+        });
+    }
+    loadOrders();
+    $scope.$on('auth', loadOrders);
     $scope.form = {
         description: undefined,
         cost: undefined
@@ -97,6 +101,7 @@ orsysApp.controller('RegisterController', function (auth, $scope, $modalInstance
                 auth.email = data.email;
                 auth.role = data.role;
                 $modalInstance.close();
+                $scope.$root.$broadcast('auth');
             }
         });
         handler.error(function(data){
@@ -137,6 +142,7 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             auth.email = data.email;
             auth.role = data.role;
             $modalInstance.close();
+            $scope.$root.$broadcast('auth');
         });
         response.error(function (data){
             $log.error(data);
