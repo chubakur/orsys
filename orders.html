@@ -13,6 +13,7 @@
     <script src="js/jquery-1.11.3.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/angular.min.js"></script>
+    <script src="js/ui-bootstrap-tpls-0.13.4.min.js"></script>
     <script src="js/orders.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -23,25 +24,36 @@
     <![endif]-->
 </head>
 
+<div ng-controller="TestController">
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">I'm a modal!</h3>
+            <span ng-click="test()">x</span>
+        </div>
+        <div class="modal-body">
+            asd
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button">OK</button>
+            <button class="btn btn-warning" type="button">Cancel</button>
+        </div>
+    </script>
+
+    <button type="button" class="btn btn-default" ng-click="open()">Open me!</button>
+</div>
+
 <div class="modal fade" id="loginDialog" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" ng-controller="LoginController">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button id="loginDialogClose" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="loginModalLabel">Вход в систему</h4>
             </div>
             <div class="modal-body">
-                <form class="form-signin">
-                    <label for="inputEmail" class="sr-only">E-mail</label>
-                    <input type="email" id="inputEmail" class="form-control intext" placeholder="Email" required autofocus>
-                    <label for="inputPassword" class="sr-only">Пароль</label>
-                    <input type="password" id="inputPassword" class="form-control intext" placeholder="Пароль" required>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" value="remember-me"> Запомнить меня
-                        </label>
-                    </div>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login()">Войти</button>
+                <form novalidate class="form-signin" name="loginForm">
+                    <input type="email" ng-model="form.email" name="email" class="form-control intext" placeholder="Email" required autofocus>
+                    <input type="password" ng-model="form.password" name="password" class="form-control intext" placeholder="Пароль" required>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login(form.email, form.password)">Войти</button>
                 </form>
             </div>
             <div class="modal-footer">
@@ -61,22 +73,22 @@
             <div class="modal-body">
                 <form novalidate class="form-signin" name="registerForm">
                     <div class="input-group intext">
-                        <input ng-model="form.email" name="email" type="email" class="form-control" placeholder="Email" required autofocus>
+                        <input ng-disabled="register_status=='start'" ng-model="form.email" name="email" type="email" class="form-control" placeholder="Email" required autofocus>
                         <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.email.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
                     </div>
                     <div class="input-group intext">
-                        <input ng-model="form.password" name="password" type="password" class="form-control" placeholder="Пароль" required>
+                        <input ng-disabled="register_status=='start'" ng-model="form.password" name="password" type="password" class="form-control" placeholder="Пароль" required>
                         <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
                     </div>
                     <div class="input-group intext">
-                        <input ng-model="form.password2" name="password2" type="password" class="form-control" compare-to="form.password"  placeholder="Повторите пароль" required>
+                        <input ng-disabled="register_status=='start'" ng-model="form.password2" name="password2" type="password" class="form-control" compare-to="form.password"  placeholder="Повторите пароль" required>
                         <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password2.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
                     </div>
                     <div class="btn-group role_selector" data-toggle="buttons">
-                        <label class="btn btn-primary" ng-click="form.role='performer'" ng-class="form.role=='performer'?'active':''">
+                        <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='performer')" ng-class="form.role=='performer'?'active':''" ng-disabled="register_status=='start'">
                             <input type="radio" name="role" id="performer" autocomplete="off">Исполнитель
                         </label>
-                        <label class="btn btn-primary" ng-click="form.role='client'" ng-class="form.role=='client'?'active':''">
+                        <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='client')" ng-class="form.role=='client'?'active':''" ng-disabled="register_status=='start'">
                             <input type="radio" name="role" id="client" autocomplete="off">Заказчик
                         </label>
                     </div>
@@ -100,16 +112,20 @@
                         ORSYS
                     </a>
                 </div>
-                <div class="navbar-form navbar-right">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#loginDialog">
-                        Вход
-                    </button>
-                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <span class="navbar-text">{{ auth.email }}</span>
+                    </li>
+                    <li>
+                        <a href data-toggle="modal" data-target="#loginDialog" ng-show="auth.email == undefined">Вход</a>
+                        <a href ng-click="logout()" ng-show="auth.email != undefined">Выход</a>
+                    </li>
+                </ul>
             </div>
         </nav>
     </div>
 
-    <div class="row" id="write_order">
+    <div class="row" id="write_order" ng-show="auth.role=='client'">
         <div class="col-md-12">
             <textarea  class="form-control" type="text" placeholder="Напишите свое задание"  ng-focus="input_focus=true" ng-blur="input_focus=false"></textarea>
             <div class="input-group" ng-show='input_focus'>
@@ -118,7 +134,6 @@
                     <button class="btn btn-info" type="submit">Отправить</button>
                 </span>
             </div>
-
         </div>
     </div>
     <div class="row order">

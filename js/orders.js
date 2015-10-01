@@ -1,4 +1,4 @@
-var orsysApp = angular.module('orsysApp', []);
+var orsysApp = angular.module('orsysApp', ['ui.bootstrap']);
 
 function urlencode(data){
     var args = []
@@ -8,16 +8,35 @@ function urlencode(data){
     return args.join("&")
 }
 
-orsysApp.controller('OrdersController', function ($scope, $interval, $log) {
-    $log.info("OrdersController init");
-    $scope.loaded = true;
-    function as(){
-        $log.log(Date.now())
+orsysApp.factory('auth', function() {
+    var auth = {
+        email: undefined,
+        role: undefined
     };
-    $interval(as, 5000);
+    return auth;
 });
 
-orsysApp.controller('RegisterController', function ($scope, $http, $log) {
+orsysApp.controller('OrdersController', function (auth, $scope, $interval, $log, $http) {
+    $scope.auth = auth;
+    $log.info("OrdersController init");
+    $scope.logout = function() {
+        var response = $http.get("/logout");
+        response.success(function (data){
+            auth.email = undefined;
+            auth.role = undefined;
+        });
+        response.error(function (data){
+            $log.error(data);
+        });
+    };
+    function timer(){
+        $log.log(Date.now());
+        $log.log(auth);
+    };
+    $interval(timer, 5000);
+});
+
+orsysApp.controller('RegisterController', function (auth, $scope, $http, $log) {
     $log.info("RegisterController init");
     $scope.form = {
         email: undefined,
@@ -33,6 +52,10 @@ orsysApp.controller('RegisterController', function ($scope, $http, $log) {
         handler.success(function(data) {
             $log.log(data);
             $scope.register_status = data.status;
+            if(data.status == 'ok'){
+                auth.email = data.email;
+                auth.role = data.role;
+            }
         });
         handler.error(function(data){
             $log.error(data);
@@ -42,11 +65,44 @@ orsysApp.controller('RegisterController', function ($scope, $http, $log) {
     }
 });
 
-orsysApp.controller('LoginController', function ($scope, $log){
+orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
     $log.info("LoginController init");
-   $scope.login = function (){
-       $log.log("Login");
-   };
+    var quering = true;
+    $scope.form = {
+        email: undefined,
+        password: undefined
+    };
+    $http.get("/auth").success(function (data){
+        if(data.status != 'ok'){
+            $log.warn(data);
+            return;
+        }
+        auth.email = data.email;
+        auth.role = data.role;
+    }).error(function (data){
+        $log.error(data);
+    }).finally(function (){
+       quering = false;
+    });
+    $scope.login = function (email, password){
+        $log.log("Login");
+        quering = true;
+        var response = $http.post("/auth", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+        response.success(function (data){
+            if(data.status != 'ok'){
+                $log.warn(data);
+                return;
+            }
+            auth.email = data.email;
+            auth.role = data.role;
+        });
+        response.error(function (data){
+            $log.error(data);
+        });
+        response.finally(function (){
+            quering = false;
+        });
+    };
 });
 
 var compareTo = function() {

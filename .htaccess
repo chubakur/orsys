@@ -6,8 +6,5 @@ RewriteRule .* /register.php [L]
 RewriteCond %{REQUEST_URI} /auth$
 RewriteRule .* /auth.php [L]
 
-RewriteRule ^$ entry.php [L]
-
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule .* /entry.php [L]
+RewriteCond %{REQUEST_URI} /logout$
+RewriteRule .* /logout.php [L]
