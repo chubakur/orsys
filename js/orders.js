@@ -90,14 +90,14 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             size: size
         });
     };
-    var quering = true;
+    $scope.quering = false;
     $scope.form = {
         email: undefined,
         password: undefined
     };
     $scope.login = function (email, password){
-        $log.log("Login");
-        quering = true;
+        if($scope.quering) return;
+        $scope.quering = true;
         var response = $http.post("/auth", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         response.success(function (data){
             if(data.status != 'ok'){
@@ -112,14 +112,14 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             $log.error(data);
         });
         response.finally(function (){
-            quering = false;
+            $scope.quering = false;
         });
     };
 });
 
 orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
     $log.info("LoginController init");
-    var quering = true;
+    $scope.quering = true;
     $scope.form = {
         email: undefined,
         password: undefined
