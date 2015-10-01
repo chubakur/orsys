@@ -1,4 +1,4 @@
-CREATE DATABASE orsys_users CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE orsys_users CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 USE orsys_users;
 CREATE TABLE users (

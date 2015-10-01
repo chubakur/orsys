@@ -19,6 +19,36 @@ orsysApp.factory('auth', function() {
 orsysApp.controller('OrdersController', function (auth, $scope, $modal, $interval, $log, $http) {
     $scope.auth = auth;
     $log.info("OrdersController init");
+    $scope.orders = [];
+    $http.get("/feed").success(function (data){
+        if(data.status == 'ok'){
+            $scope.orders = data.results;
+        }
+    }).error(function (data){
+        $log.error(data);
+    });
+    $scope.form = {
+        description: undefined,
+        cost: undefined
+    };
+    $scope.sending = false;
+    $scope.makeOrder = function(descr, cost){
+        if($scope.sending) return;
+        $scope.sending = true;
+        var promise = $http.post("/feed", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}});
+        promise.success(function (data){
+            if(data.status == 'ok') {
+                $scope.form.description = undefined;
+                $scope.form.cost = undefined;
+            }
+        });
+        promise.error(function (data){
+            $log.error(data);
+        });
+        promise.finally(function (){
+            $scope.sending = false;
+        });
+    };
     $scope.showLoginDialog = function (size){
         var modalInstance = $modal.open({
             animation: true,

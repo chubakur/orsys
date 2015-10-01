@@ -8,3 +8,8 @@ RewriteRule .* /auth.php [L]
 
 RewriteCond %{REQUEST_URI} /logout$
 RewriteRule .* /logout.php [L]
+
+RewriteCond %{REQUEST_URI} /feed$
+RewriteRule .* /feed.php [L]
+
+RewriteRule ^$ /orders.html [L]

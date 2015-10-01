@@ -102,12 +102,33 @@
 
     <div class="row" id="write_order" ng-show="auth.role=='client'">
         <div class="col-md-12">
-            <textarea  class="form-control" type="text" placeholder="Напишите свое задание"  ng-focus="input_focus=true" ng-blur="input_focus=false"></textarea>
-            <div class="input-group" ng-show='input_focus'>
-                <input class="form-control" type="number"  ng-focus="input_focus=true" ng-blur="input_focus=false" placeholder="Стоимость работ">
-                <span class="input-group-btn">
-                    <button class="btn btn-info" type="submit">Отправить</button>
-                </span>
+            <form novalidate name="orderForm">
+                <textarea ng-model="form.description" name="description" class="form-control" type="text" placeholder="Напишите свое задание"  ng-focus="input_focus=true" ng-blur="input_focus=false" required></textarea>
+                <div class="input-group" ng-show='input_focus'>
+                    <input ng-model="form.cost" name="cost" class="form-control" type="number"  ng-focus="input_focus=true" ng-blur="input_focus=false" placeholder="Стоимость работ" min="1" integer required>
+                    <span class="input-group-btn">
+                        <button class="btn btn-info" ng-click="orderForm.$valid && makeOrder(form.description, form.cost)" ng-disabled="orderForm.$invalid" ng-focus="input_focus=true" ng-blur="input_focus=false" type="submit">
+                            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" ng-show="sending"></span>Отправить
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row order" ng-repeat="order in orders">
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    Заголовок
+                </div>
+                <div class="panel-body">
+                    {{ order.description }}
+                </div>
+                <div class="panel-footer">
+                    <span>Стоимость: {{ order.cost }}</span>
+                    <button ng-show="auth.role=='performer'" class="btn btn-sm btn-info pull-right">Выполнить работу</button>
+                    <div class="clearfix"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -119,6 +140,11 @@
                 </div>
                 <div class="panel-body">
                     Требуется сделать всякие прикольные штуки. Возможно мы вам заплатим, но может быть и нет
+                </div>
+                <div class="panel-footer">
+                    <span>Стоимость: 200</span>
+                    <button class="btn btn-sm btn-info pull-right">Выполнить работу</button>
+                    <div class="clearfix"></div>
                 </div>
             </div>
         </div>
