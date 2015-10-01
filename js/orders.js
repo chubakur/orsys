@@ -16,9 +16,17 @@ orsysApp.factory('auth', function() {
     return auth;
 });
 
-orsysApp.controller('OrdersController', function (auth, $scope, $interval, $log, $http) {
+orsysApp.controller('OrdersController', function (auth, $scope, $modal, $interval, $log, $http) {
     $scope.auth = auth;
     $log.info("OrdersController init");
+    $scope.showLoginDialog = function (size){
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'loginModal.html',
+            controller: 'LoginDialogController',
+            size: size
+        });
+    };
     $scope.logout = function() {
         var response = $http.get("/logout");
         response.success(function (data){
@@ -36,8 +44,11 @@ orsysApp.controller('OrdersController', function (auth, $scope, $interval, $log,
     $interval(timer, 5000);
 });
 
-orsysApp.controller('RegisterController', function (auth, $scope, $http, $log) {
+orsysApp.controller('RegisterController', function (auth, $scope, $modalInstance, $http, $log) {
     $log.info("RegisterController init");
+    $scope.closeModal = function (){
+        $modalInstance.close();
+    };
     $scope.form = {
         email: undefined,
         password: undefined,
@@ -55,6 +66,7 @@ orsysApp.controller('RegisterController', function (auth, $scope, $http, $log) {
             if(data.status == 'ok'){
                 auth.email = data.email;
                 auth.role = data.role;
+                $modalInstance.close();
             }
         });
         handler.error(function(data){
@@ -63,6 +75,46 @@ orsysApp.controller('RegisterController', function (auth, $scope, $http, $log) {
         });
         return true;
     }
+});
+
+orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $modalInstance, $http, $log){
+    $scope.closeModal = function (){
+        $modalInstance.close();
+    };
+    $scope.openRegisterDialog = function(size){
+        $modalInstance.close();
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'registerModal.html',
+            controller: 'RegisterController',
+            size: size
+        });
+    };
+    var quering = true;
+    $scope.form = {
+        email: undefined,
+        password: undefined
+    };
+    $scope.login = function (email, password){
+        $log.log("Login");
+        quering = true;
+        var response = $http.post("/auth", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+        response.success(function (data){
+            if(data.status != 'ok'){
+                $log.warn(data);
+                return;
+            }
+            auth.email = data.email;
+            auth.role = data.role;
+            $modalInstance.close();
+        });
+        response.error(function (data){
+            $log.error(data);
+        });
+        response.finally(function (){
+            quering = false;
+        });
+    };
 });
 
 orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
@@ -84,25 +136,7 @@ orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
     }).finally(function (){
        quering = false;
     });
-    $scope.login = function (email, password){
-        $log.log("Login");
-        quering = true;
-        var response = $http.post("/auth", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
-        response.success(function (data){
-            if(data.status != 'ok'){
-                $log.warn(data);
-                return;
-            }
-            auth.email = data.email;
-            auth.role = data.role;
-        });
-        response.error(function (data){
-            $log.error(data);
-        });
-        response.finally(function (){
-            quering = false;
-        });
-    };
+
 });
 
 var compareTo = function() {

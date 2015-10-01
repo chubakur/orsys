@@ -24,85 +24,58 @@
     <![endif]-->
 </head>
 
-<div ng-controller="TestController">
-    <script type="text/ng-template" id="myModalContent.html">
-        <div class="modal-header">
-            <h3 class="modal-title">I'm a modal!</h3>
-            <span ng-click="test()">x</span>
-        </div>
-        <div class="modal-body">
-            asd
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" type="button">OK</button>
-            <button class="btn btn-warning" type="button">Cancel</button>
-        </div>
-    </script>
-
-    <button type="button" class="btn btn-default" ng-click="open()">Open me!</button>
-</div>
-
-<div class="modal fade" id="loginDialog" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" ng-controller="LoginController">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button id="loginDialogClose" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="loginModalLabel">Вход в систему</h4>
-            </div>
-            <div class="modal-body">
-                <form novalidate class="form-signin" name="loginForm">
-                    <input type="email" ng-model="form.email" name="email" class="form-control intext" placeholder="Email" required autofocus>
-                    <input type="password" ng-model="form.password" name="password" class="form-control intext" placeholder="Пароль" required>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login(form.email, form.password)">Войти</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                или <a href data-toggle="modal" data-target="#registerDialog" data-dismiss="modal">зарегистрируйтесь</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="registerDialog" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" ng-controller="RegisterController">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="registerModalLabel">Регистрация в системе</h4>
-            </div>
-            <div class="modal-body">
-                <form novalidate class="form-signin" name="registerForm">
-                    <div class="input-group intext">
-                        <input ng-disabled="register_status=='start'" ng-model="form.email" name="email" type="email" class="form-control" placeholder="Email" required autofocus>
-                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.email.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
-                    </div>
-                    <div class="input-group intext">
-                        <input ng-disabled="register_status=='start'" ng-model="form.password" name="password" type="password" class="form-control" placeholder="Пароль" required>
-                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
-                    </div>
-                    <div class="input-group intext">
-                        <input ng-disabled="register_status=='start'" ng-model="form.password2" name="password2" type="password" class="form-control" compare-to="form.password"  placeholder="Повторите пароль" required>
-                        <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password2.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
-                    </div>
-                    <div class="btn-group role_selector" data-toggle="buttons">
-                        <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='performer')" ng-class="form.role=='performer'?'active':''" ng-disabled="register_status=='start'">
-                            <input type="radio" name="role" id="performer" autocomplete="off">Исполнитель
-                        </label>
-                        <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='client')" ng-class="form.role=='client'?'active':''" ng-disabled="register_status=='start'">
-                            <input type="radio" name="role" id="client" autocomplete="off">Заказчик
-                        </label>
-                    </div>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-class="(registerForm.$invalid||register_status=='start')?'disabled':''" ng-click="register()">
-                        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" ng-show="register_status=='start'"></span>Регистрация
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+<div ng-controller="LoginController"></div>
 
 <body ng-controller="OrdersController">
+<script type='text/ng-template' id="loginModal.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="closeModal()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Вход в систему</h4>
+    </div>
+    <div class="modal-body">
+        <form novalidate class="form-signin" name="loginForm">
+            <input type="email" ng-model="form.email" name="email" class="form-control intext" placeholder="Email" required autofocus>
+            <input type="password" ng-model="form.password" name="password" class="form-control intext" placeholder="Пароль" required>
+            <button class="btn btn-lg btn-primary btn-block" ng-disabled="loginForm.$invalid" type="submit" ng-click="login(form.email, form.password)">Войти</button>
+        </form>
+    </div>
+    <div class="modal-footer">
+        или <a href ng-click="openRegisterDialog()">зарегистрируйтесь</a><br>
+    </div>
+</script>
+<script type="text/ng-template" id="registerModal.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="closeModal()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="registerModalLabel">Регистрация в системе</h4>
+    </div>
+    <div class="modal-body">
+        <form novalidate class="form-signin" name="registerForm">
+            <div class="input-group intext">
+                <input ng-disabled="register_status=='start'" ng-model="form.email" name="email" type="email" class="form-control" placeholder="Email" required autofocus>
+                <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.email.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+            </div>
+            <div class="input-group intext">
+                <input ng-disabled="register_status=='start'" ng-model="form.password" name="password" type="password" class="form-control" placeholder="Пароль" required>
+                <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+            </div>
+            <div class="input-group intext">
+                <input ng-disabled="register_status=='start'" ng-model="form.password2" name="password2" type="password" class="form-control" compare-to="form.password"  placeholder="Повторите пароль" required>
+                <span class="input-group-addon"><span class="glyphicon" ng-class="registerForm.password2.$valid?'glyphicon-ok':'glyphicon-remove'"></span></span>
+            </div>
+            <div class="btn-group role_selector" data-toggle="buttons">
+                <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='performer')" ng-class="form.role=='performer'?'active':''" ng-disabled="register_status=='start'">
+                    <input type="radio" name="role" id="performer" autocomplete="off">Исполнитель
+                </label>
+                <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='client')" ng-class="form.role=='client'?'active':''" ng-disabled="register_status=='start'">
+                    <input type="radio" name="role" id="client" autocomplete="off">Заказчик
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" ng-class="(registerForm.$invalid||register_status=='start')?'disabled':''" ng-click="register()">
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" ng-show="register_status=='start'"></span>Регистрация
+            </button>
+        </form>
+    </div>
+</script>
 <div class="container">
     <div class="row">
         <nav class="navbar navbar-default">
@@ -117,7 +90,7 @@
                         <span class="navbar-text">{{ auth.email }}</span>
                     </li>
                     <li>
-                        <a href data-toggle="modal" data-target="#loginDialog" ng-show="auth.email == undefined">Вход</a>
+                        <a href ng-show="auth.email == undefined" ng-click="showLoginDialog()">Вход</a>
                         <a href ng-click="logout()" ng-show="auth.email != undefined">Выход</a>
                     </li>
                 </ul>
