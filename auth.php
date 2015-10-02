@@ -1,7 +1,7 @@
 <?php
 require_once('session_mgr.php');
 if(isset($_SESSION['user_id']) && isset($_SESSION['email']) && isset($_SESSION['role'])){
-    die(json_encode(['status'=> 'ok', 'email'=> $_SESSION['email'], 'role'=> $_SESSION['role'], 'bill'=>0]));
+    die(json_encode(['status'=> 'ok', 'email'=> $_SESSION['email'], 'role'=> $_SESSION['role'], 'bill'=>$_SESSION['bill']]));
 }
 if($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['email']) || !isset($_POST['password'])){
     die('{"status":"invalid"}');
@@ -28,4 +28,5 @@ if(!$row){
 $_SESSION['user_id'] = $row['id'];
 $_SESSION['email'] = $form_email;
 $_SESSION['role'] = $row['role'];
+$_SESSION['bill'] = $row['bill'];
 die(json_encode(['status'=>'ok', 'email'=>$email, 'role'=>$row['role'], 'bill'=>$row['bill']]));
