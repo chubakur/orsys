@@ -11,7 +11,8 @@ function urlencode(data){
 orsysApp.factory('auth', function() {
     var auth = {
         email: undefined,
-        role: undefined
+        role: undefined,
+        bill: undefined
     };
     return auth;
 });
@@ -28,6 +29,8 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                     return result;
                 });
                 $scope.orders = data.results;
+            }else if(data.status == 'noauth'){
+                $scope.showLoginDialog();
             }
         }).error(function (data){
             $log.error(data);
@@ -43,7 +46,7 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $scope.makeOrder = function(descr, cost){
         if($scope.sending) return;
         $scope.sending = true;
-        var promise = $http.post("/feed", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}});
+        var promise = $http.post("/feed_new", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}});
         promise.success(function (data){
             if(data.status == 'ok') {
                 $scope.form.description = undefined;
@@ -63,6 +66,23 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             templateUrl: 'loginModal.html',
             controller: 'LoginDialogController',
             size: size
+        });
+    };
+    $scope.completeOrder = function(selected_order){
+        var promise = $http.post("/feed_complete", urlencode({order_id: selected_order.id}), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+        promise.success(function (data){
+            if(data.status == 'ok'){
+                $scope.orders = $scope.orders.filter(function (order){
+                   return order != selected_order;
+                });
+                auth.bill += parseInt(selected_order.cost);
+            }
+        });
+        promise.error(function (data){
+            $log.error(data);
+        });
+        promise.finally(function (){
+
         });
     };
     $scope.logout = function() {
@@ -150,6 +170,7 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             }
             auth.email = data.email;
             auth.role = data.role;
+            auth.bill = parseInt(data.bill);
             $modalInstance.close();
             $scope.$root.$broadcast('auth');
         });
@@ -176,6 +197,7 @@ orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
         }
         auth.email = data.email;
         auth.role = data.role;
+        auth.bill = parseInt(data.bill);
     }).error(function (data){
         $log.error(data);
     }).finally(function (){

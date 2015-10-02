@@ -12,4 +12,10 @@ RewriteRule .* /logout.php [L]
 RewriteCond %{REQUEST_URI} /feed$
 RewriteRule .* /feed.php [L]
 
+RewriteCond %{REQUEST_URI} /feed_new$
+RewriteRule .* /feed_new.php [L]
+
+RewriteCond %{REQUEST_URI} /feed_complete$
+RewriteRule .* /feed_complete.php [L]
+
 RewriteRule ^$ /orders.html [L]

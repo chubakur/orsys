@@ -2,7 +2,8 @@
 
 $config = [
   'mysql'=> [
-      'users'=> ['localhost:3306', 'orsys_users', 'root', '992211'],
-      'orders'=> ['localhost:3306', 'orsys_orders', 'root', '992211']
+      'users'=> ['host'=>'localhost:3306', 'schema'=>'orsys_users', 'user'=>'root', 'password'=>'992211'],
+      'orders'=> ['host'=>'localhost:3306', 'schema'=>'orsys_orders', 'user'=>'root', 'password'=>'992211']
   ]
 ];
+
