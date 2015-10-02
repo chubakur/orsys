@@ -78,14 +78,14 @@ orsysApp.controller('OrdersController', function (auth, $scope, $modal, $interva
     $interval(timer, 5000);
 });
 
-orsysApp.controller('RegisterController', function (auth, $scope, $modalInstance, $http, $log) {
+orsysApp.controller('RegisterController', function (auth, $scope, loginDialogScope, $modalInstance, $http, $log) {
     $log.info("RegisterController init");
     $scope.closeModal = function (){
         $modalInstance.close();
     };
     $scope.form = {
-        email: undefined,
-        password: undefined,
+        email: loginDialogScope.email,
+        password: loginDialogScope.password,
         password2: undefined,
         role: 'performer'
     };
@@ -113,6 +113,11 @@ orsysApp.controller('RegisterController', function (auth, $scope, $modalInstance
 });
 
 orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $modalInstance, $http, $log){
+    $scope.quering = false;
+    $scope.form = {
+        email: undefined,
+        password: undefined
+    };
     $scope.closeModal = function (){
         $modalInstance.close();
     };
@@ -122,13 +127,13 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             animation: true,
             templateUrl: 'registerModal.html',
             controller: 'RegisterController',
-            size: size
+            size: size,
+            resolve: {
+                loginDialogScope: function (){
+                    return $scope.form;
+                }
+            }
         });
-    };
-    $scope.quering = false;
-    $scope.form = {
-        email: undefined,
-        password: undefined
     };
     $scope.login = function (email, password){
         if($scope.quering) return;
