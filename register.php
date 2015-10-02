@@ -5,13 +5,18 @@ if(isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] != 'POST' || !isset
 }
 //ВАЛИДАЦИЯ!!!!!
 $form_email = $_POST['email'];
-$cpassword = md5($_POST['password']);
+$password = $_POST['password'];
 $form_role = $_POST['role'];
+if(!emailIsValid($form_email) || !in_array($form_role, ['client', 'performer'])){
+    die('{"status":"validate_error"}');
+}
+$email = normalizeEmail($form_email);
+$cpassword = md5($password);
 require_once('config.php');
 $connection_parameters = $config['mysql']['users'];
 $connection = mysql_connect($connection_parameters[0], $connection_parameters[2], $connection_parameters[3]) or die("Cannot connect to Database");
-if(mysql_db_query($connection_parameters[1], "INSERT INTO users (email, password, role) VALUES ('$form_email', '$cpassword', '$form_role');", $connection)){
-    $answ = mysql_query("SELECT id FROM users WHERE email='$form_email';", $connection);
+if(mysql_db_query($connection_parameters[1], "INSERT INTO users (email, password, role) VALUES ('$email', '$cpassword', '$form_role');", $connection)){
+    $answ = mysql_query("SELECT id FROM users WHERE email='$email';", $connection);
     if(!$answ){
         die('{"status":"invalid"}');
     }

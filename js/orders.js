@@ -16,13 +16,17 @@ orsysApp.factory('auth', function() {
     return auth;
 });
 
-orsysApp.controller('OrdersController', function (auth, $scope, $modal, $interval, $log, $http) {
+orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $interval, $log, $http) {
     $scope.auth = auth;
     $log.info("OrdersController init");
     $scope.orders = [];
     function loadOrders(){
         $http.get("/feed").success(function (data){
             if(data.status == 'ok'){
+                data.results.forEach(function (result){
+                    result.trusted = $sce.trustAsHtml(result.description);
+                    return result;
+                });
                 $scope.orders = data.results;
             }
         }).error(function (data){

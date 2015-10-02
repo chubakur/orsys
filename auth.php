@@ -7,9 +7,13 @@ if($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['email']) || !isset($_P
     die('{"status":"invalid"}');
 }
 //ВАЛИДАЦИЯ!!!!
+$form_email = $_POST['email'];
+if(!emailIsValid($form_email)){
+    die('{"status":"validate_error"}');
+}
+$email = normalizeEmail($form_email);
 require_once('config.php');
 $connection_parameters = $config['mysql']['users'];
-$email = $_POST['email'];
 $cpassword = md5($_POST['password']);
 $connection = mysql_connect($connection_parameters[0], $connection_parameters[2], $connection_parameters[3]) or die("Cannot connect to Database");
 $sql_query = "SELECT id, role FROM users WHERE email='$email' AND password='$cpassword'";
@@ -22,6 +26,6 @@ if(!$row){
     die('{"status":"wrong"}');
 }
 $_SESSION['user_id'] = $row['id'];
-$_SESSION['email'] = $email;
+$_SESSION['email'] = $form_email;
 $_SESSION['role'] = $row['role'];
 die(json_encode(['status'=>'ok', 'email'=>$email, 'role'=>$row['role']]));
