@@ -1,4 +1,4 @@
-CREATE DATABASE orsys_events CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE DATABASE orsys_events CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE orsys_events;
 
 CREATE TABLE events (
@@ -7,4 +7,4 @@ CREATE TABLE events (
   `event` TEXT NOT NULL,
   INDEX(`date`),
   PRIMARY KEY (`id`)
-);
+) ;

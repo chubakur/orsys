@@ -4,7 +4,7 @@ require_once('session_mgr.php');
 function create_event($db_params, $event){
     $db_events_params = $db_params;
     $events_connection = create_mysql_connection($db_events_params);
-    $serialized_event = json_encode($event);
+    $serialized_event = addcslashes(json_encode($event), '\\');
     $add_event_sql = "INSERT INTO events (event) VALUES ('$serialized_event')";
     return mysql_db_query($db_params['schema'], $add_event_sql, $events_connection);
 }
