@@ -3,7 +3,9 @@ require_once('session_mgr.php');
 if(!isset($_SESSION['user_id'])){
     die('{"status":"noauth"}');
 }
+session_write_close();
 require_once('config.php');
+require_once('events.php');
 $db_params = $config['mysql']['orders'];
 $connection = create_mysql_connection($db_params);
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
@@ -15,6 +17,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     while($row = mysql_fetch_assoc($result)){
         $answers[] = $row;
     }
-    die(json_encode(['status'=>'ok', 'results'=>$answers]));
+    die(json_encode(['status'=>'ok', 'ts'=> time(), 'results'=>$answers]));
+}elseif($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ts']) && filter_input(INPUT_POST, 'ts', FILTER_VALIDATE_INT)){
+    $db_events_params = $config['mysql']['events'];
+    $start_time = time();
+    $events_query = 0;
+    while((time() - $start_time) < 25){
+        $events = get_events($db_events_params, $_POST['ts']);
+        if(count($events) > 0){
+            die(json_encode(['ts'=>time(), 'events'=>$events]));
+        }
+        sleep(1);
+    }
+    die(json_encode(['ts'=>time(), 'events'=>[]]));
 }
 die('{"status":"invalid"}');

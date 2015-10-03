@@ -1,5 +1,6 @@
 <?php
 session_start();
+//print_r(getallheaders());
 
 function emailIsValid($email){
     $pattern = "/^[A-z0-9_\+\.\-'`]+@[A-z0-9_]+\.[A-z0-9\._]+$/";

@@ -22,8 +22,11 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $log.info("OrdersController init");
     $scope.orders = [];
     function loadOrders(){
+        if(auth.email == undefined) return;
+        $log.log("loadOrders");
         $http.get("/feed").success(function (data){
             if(data.status == 'ok'){
+                updateOrders(data.ts);
                 data.results.forEach(function (result){
                     result.trusted = $sce.trustAsHtml(result.description);
                     return result;
@@ -36,7 +39,6 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             $log.error(data);
         });
     }
-    loadOrders();
     $scope.$on('auth', loadOrders);
     $scope.form = {
         description: undefined,
@@ -95,11 +97,29 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             $log.error(data);
         });
     };
-    function timer(){
-        $log.log(Date.now());
-        $log.log(auth);
+    function updateOrders(ts){
+        if(auth.email == undefined) return;
+        $log.log("UPDATE ORDERS "+ts);
+        $http.post("/feed", urlencode({ts: ts}), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).success(function (data){
+            $log.log(data);
+            data.events.forEach(function (event){
+                if(event.event.type == 'new'){
+                    event.event.trusted = $sce.trustAsHtml(event.event.description);
+                    $scope.orders.unshift(event.event);
+                }else if(event.event.type == 'done'){
+                    $scope.orders = $scope.orders.filter(function (order){
+                        return order.id != parseInt(event.event.order_id);
+                    });
+                }else{
+                    $log.error("EVENT.TYPE");
+                }
+            });
+            $log.info($scope.orders);
+            updateOrders(data.ts);
+        }).error(function (data){
+            $log.error(data);
+        })
     };
-    $interval(timer, 5000);
 });
 
 orsysApp.controller('RegisterController', function (auth, $scope, loginDialogScope, $modalInstance, $http, $log) {
@@ -185,20 +205,23 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
 
 orsysApp.controller('LoginController', function (auth, $scope, $interval, $http, $log){
     $log.info("LoginController init");
-    $scope.quering = true;
-    $scope.form = {
-        email: undefined,
-        password: undefined
-    };
+    $scope.quering = false;
     $scope.updateAccountInfo = function (){
+        if($scope.quering) return;
+        $log.log("updateAccountInfo()")
+        $scope.quering = true;
         $http.get("/auth").success(function (data){
             if(data.status != 'ok'){
                 $log.warn(data);
                 return;
             }
+            var logined = auth.email == undefined;
             auth.email = data.email;
             auth.role = data.role;
             auth.bill = parseInt(data.bill);
+            if(logined){
+                $scope.$root.$broadcast('auth');
+            }
         }).error(function (data){
             $log.error(data);
         }).finally(function (){
