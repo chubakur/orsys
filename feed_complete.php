@@ -35,7 +35,6 @@ $users_connection = create_mysql_connection($db_users_params);
 $pay_sql = "UPDATE users SET bill=bill+$cost WHERE id=$user_id";
 $result = mysql_db_query($db_users_params['schema'], $pay_sql, $users_connection);
 if($result){
-    $_SESSION['bill'] += $cost;
     die('{"status":"ok"}');
 }
 die('{"status":"error"}');

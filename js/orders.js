@@ -183,27 +183,30 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
     };
 });
 
-orsysApp.controller('LoginController', function (auth, $scope, $http, $log){
+orsysApp.controller('LoginController', function (auth, $scope, $interval, $http, $log){
     $log.info("LoginController init");
     $scope.quering = true;
     $scope.form = {
         email: undefined,
         password: undefined
     };
-    $http.get("/auth").success(function (data){
-        if(data.status != 'ok'){
-            $log.warn(data);
-            return;
-        }
-        auth.email = data.email;
-        auth.role = data.role;
-        auth.bill = parseInt(data.bill);
-    }).error(function (data){
-        $log.error(data);
-    }).finally(function (){
-       quering = false;
-    });
-
+    $scope.updateAccountInfo = function (){
+        $http.get("/auth").success(function (data){
+            if(data.status != 'ok'){
+                $log.warn(data);
+                return;
+            }
+            auth.email = data.email;
+            auth.role = data.role;
+            auth.bill = parseInt(data.bill);
+        }).error(function (data){
+            $log.error(data);
+        }).finally(function (){
+            $scope.quering = false;
+        });
+    }
+    $interval($scope.updateAccountInfo, 5000);
+    $scope.updateAccountInfo();
 });
 
 var compareTo = function() {
