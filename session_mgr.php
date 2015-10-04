@@ -1,6 +1,11 @@
 <?php
 session_start();
-//print_r(getallheaders());
+
+$request_headers = getallheaders();
+if(isset($_SESSION['csrf-token'])){
+    if(!isset($request_headers['X-XSRF-TOKEN']) || $request_headers['X-XSRF-TOKEN'] != $_SESSION['csrf-token'])
+        die('{"status":"invalid","msg":"xsrf"}');
+}
 
 function emailIsValid($email){
     $pattern = "/^[A-z0-9_\+\.\-'`]+@[A-z0-9_]+\.[A-z0-9\._]+$/";
@@ -19,4 +24,8 @@ function create_mysql_connection($config, $permanent=false){
     $connect = $permanent?"mysql_pconnect":"mysql_connect";
     $connection = $connect($config['host'], $config['user'], $config['password']) or die('{"status":"invalid", "error":"db"}');
     return $connection;
+}
+
+function generate_csrf_token($salt){
+    return md5(time().$salt);
 }

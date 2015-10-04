@@ -40,4 +40,6 @@ if(!$row){
 $_SESSION['user_id'] = $row['id'];
 $_SESSION['email'] = $form_email;
 $_SESSION['role'] = $row['role'];
+$_SESSION['csrf-token'] = generate_csrf_token($row['id']);
+setcookie("XSRF-TOKEN", $_SESSION['csrf-token']);
 die(json_encode(['status'=>'ok', 'email'=>$email, 'role'=>$row['role'], 'bill'=>$row['bill']]));

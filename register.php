@@ -24,6 +24,8 @@ if(mysql_db_query($db_params['schema'], "INSERT INTO users (email, password, rol
     $_SESSION['user_id'] = $row['id'];
     $_SESSION['email'] = $form_email;
     $_SESSION['role'] = $form_role;
+    $_SESSION['csrf-token'] = generate_csrf_token($row['id']);
+    setcookie("XSRF-TOKEN", $_SESSION['csrf-token']);
     die(json_encode(['status'=>'ok', 'email'=>$form_email, 'role'=>$form_role]));
 }
 die('{"status":"invalid", "msg":"used"}');

@@ -22,3 +22,9 @@ function get_events($db_params, $after_ts){
     }
     return $events;
 }
+
+function remove_old_events($db_params){
+    $events_connection = create_mysql_connection($db_params);
+    $delete_sql = 'DELETE FROM events WHERE date < (NOW() - INTERVAL 1 MINUTE)';
+    return mysql_db_query($db_params['schema'], $delete_sql, $events_connection);
+}
