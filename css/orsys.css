@@ -19,6 +19,10 @@
     margin-bottom: 5px;
 }
 
+.alert {
+    margin-bottom: 5px;
+}
+
 .glyphicon-refresh-animate {
     -animation: spin .7s infinite linear;
     -webkit-animation: spin2 .7s infinite linear;

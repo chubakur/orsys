@@ -137,8 +137,10 @@ orsysApp.controller('RegisterController', function (auth, $scope, loginDialogSco
         role: 'performer'
     };
     $scope.register_status = undefined;
+    $scope.error_message = undefined;
     $scope.register = function () {
         if($scope.registerForm.$invalid || $scope.register_status == "start") return;
+        $scope.error_message = undefined;
         $scope.register_status = "start";
         var handler = $http.post("/register", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         handler.success(function(data) {
@@ -149,6 +151,8 @@ orsysApp.controller('RegisterController', function (auth, $scope, loginDialogSco
                 auth.role = data.role;
                 $modalInstance.close();
                 $scope.$root.$broadcast('auth');
+            }else{
+                $scope.error_message = data.msg;
             }
         });
         handler.error(function(data){
@@ -161,6 +165,7 @@ orsysApp.controller('RegisterController', function (auth, $scope, loginDialogSco
 
 orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $modalInstance, $http, $log){
     $scope.quering = false;
+    $scope.error_message = undefined;
     $scope.form = {
         email: undefined,
         password: undefined
@@ -184,11 +189,12 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
     };
     $scope.login = function (email, password){
         if($scope.quering) return;
+        $scope.error_message = undefined;
         $scope.quering = true;
         var response = $http.post("/auth", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         response.success(function (data){
             if(data.status != 'ok'){
-                $log.warn(data);
+                $scope.error_message = data.msg;
                 return;
             }
             auth.email = data.email;

@@ -1,7 +1,7 @@
 <?php
 require_once('session_mgr.php');
 if(isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['email']) || !isset($_POST['password']) || !isset($_POST['role'])) {
-    die('{"status":"invalid"}');
+    die('{"status":"invalid", "msg":"api_error"}');
 }
 //ВАЛИДАЦИЯ!!!!!
 $form_email = $_POST['email'];
@@ -26,4 +26,4 @@ if(mysql_db_query($db_params['schema'], "INSERT INTO users (email, password, rol
     $_SESSION['role'] = $form_role;
     die(json_encode(['status'=>'ok', 'email'=>$form_email, 'role'=>$form_role]));
 }
-die('{"status":"error"}');
+die('{"status":"invalid", "msg":"used"}');

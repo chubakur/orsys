@@ -36,6 +36,11 @@
         <form novalidate class="form-signin" name="loginForm">
             <input ng-pattern="/^[A-z0-9_\+\.\-'`]+@[A-z0-9_]+\.[A-z0-9\._]+$/" maxlength="255" ng-model="form.email" name="email" class="form-control intext" placeholder="Email" required autofocus>
             <input type="password" ng-model="form.password" name="password" class="form-control intext" placeholder="Пароль" required>
+            <div class="alert alert-danger" role="alert" ng-show="error_message">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span ng-show="error_message!='incorrect'">Неизвестная ошибка API</span>
+                <span ng-show="error_message=='incorrect'">Неправильная пара логин/пароль</span>
+            </div>
             <button class="btn btn-lg btn-primary btn-block" ng-disabled="loginForm.$invalid" type="submit" ng-click="quering || login(form.email, form.password)">
                 <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" ng-show="quering"></span>Войти
             </button>
@@ -71,6 +76,11 @@
                 <label class="btn btn-primary" ng-click="(register_status=='start') || (form.role='client')" ng-class="form.role=='client'?'active':''" ng-disabled="register_status=='start'">
                     <input type="radio" name="role" id="client" autocomplete="off">Заказчик
                 </label>
+            </div>
+            <div class="alert alert-danger" role="alert" ng-show="error_message">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span ng-show="error_message!='used'">Неизвестная ошибка API</span>
+                <span ng-show="error_message=='used'">Этот Email уже используется</span>
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit" ng-class="(registerForm.$invalid||register_status=='start')?'disabled':''" ng-click="register()">
                 <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate" ng-show="register_status=='start'"></span>Регистрация
