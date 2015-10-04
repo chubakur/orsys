@@ -22,7 +22,6 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $log.info("OrdersController init");
     $scope.orders = [];
     function loadOrders(){
-        if(auth.email == undefined) return;
         $log.log("loadOrders");
         $http.get("/feed").success(function (data){
             if(data.status == 'ok'){
@@ -32,14 +31,11 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                     return result;
                 });
                 $scope.orders = data.results;
-            }else if(data.status == 'noauth'){
-                $scope.showLoginDialog();
             }
         }).error(function (data){
             $log.error(data);
         });
     }
-    $scope.$on('auth', loadOrders);
     $scope.form = {
         description: undefined,
         cost: undefined
@@ -70,6 +66,10 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             size: size
         });
     };
+    $scope.autoStartLoginDialogOnce = function (){
+        $scope.showLoginDialog();
+        $scope.$$listeners.noauth = [];
+    }
     $scope.completeOrder = function(selected_order){
         var promise = $http.post("/feed_complete", urlencode({order_id: selected_order.id}), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         promise.success(function (data){
@@ -92,11 +92,14 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
         response.success(function (data){
             auth.email = undefined;
             auth.role = undefined;
+            $scope.orders = [];
         });
         response.error(function (data){
             $log.error(data);
         });
     };
+    $scope.$on('auth', loadOrders);
+    $scope.$on('noauth', $scope.autoStartLoginDialogOnce);
     function updateOrders(ts){
         if(auth.email == undefined) return;
         $log.log("UPDATE ORDERS "+ts);
@@ -153,7 +156,7 @@ orsysApp.controller('RegisterController', function (auth, $scope, loginDialogSco
             $scope.register_status = "invalid";
         });
         return true;
-    }
+    };
 });
 
 orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $modalInstance, $http, $log){
@@ -212,7 +215,8 @@ orsysApp.controller('LoginController', function (auth, $scope, $interval, $http,
         $scope.quering = true;
         $http.get("/auth").success(function (data){
             if(data.status != 'ok'){
-                $log.warn(data);
+                $log.log("NOT LOGINED");
+                $scope.$root.$broadcast('noauth');
                 return;
             }
             var logined = auth.email == undefined;
