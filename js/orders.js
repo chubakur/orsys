@@ -1,4 +1,4 @@
-var orsysApp = angular.module('orsysApp', ['ui.bootstrap']);
+var orsysApp = angular.module('orsysApp', ['ui.bootstrap', 'infinite-scroll']);
 
 function urlencode(data){
     var args = []
@@ -21,8 +21,11 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $scope.auth = auth;
     $log.info("OrdersController init");
     $scope.orders = [];
+    $scope.is_loading = false;
+    $scope.last_loaded = false;
     function loadOrders(){
         $log.log("loadOrders");
+        $scope.is_loading = true;
         $http.get("/feed").success(function (data){
             if(data.status == 'ok'){
                 updateOrders(data.ts);
@@ -34,6 +37,8 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             }
         }).error(function (data){
             $log.error(data);
+        }).finally(function (){
+            $scope.is_loading = false;
         });
     }
     $scope.form = {
@@ -86,6 +91,32 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
         promise.finally(function (){
 
         });
+    };
+    $scope.loadMoreOrders = function (){
+        if(auth.email == undefined || $scope.is_loading || $scope.last_loaded) return;
+        var min_element = $scope.orders[$scope.orders.length - 1];
+        if(min_element) {
+            var minid = parseInt(min_element.id);
+            $scope.is_loading = true;
+            $log.log("load From:" + minid);
+            $http.get("/feed", {params: {minid: minid}}).success(function (data){
+                $log.log(data);
+                if(data.status == 'ok'){
+                    if(data.results.length <= 0 ) $scope.last_loaded = true;
+                    data.results.forEach(function (result){
+                       result.trusted = $sce.trustAsHtml(result.description);
+                    });
+                    $scope.orders = $scope.orders.concat(data.results);
+                }else{
+                    $log.warn(data);
+                }
+            }).error(function (data){
+                $log.error(data);
+            }).finally(function (){
+                $scope.is_loading = false;
+            });
+        }
+
     };
     $scope.logout = function() {
         var response = $http.get("/logout");

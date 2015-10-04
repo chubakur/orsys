@@ -11,7 +11,12 @@ $connection = create_mysql_connection($db_params);
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
     //валидация
     //обновляем
-    $sql_query = "SELECT id, client, description, cost, date FROM orders WHERE performer IS NULL ORDER BY date DESC LIMIT 20";
+    if(isset($_GET['minid']) && filter_input(INPUT_GET, 'minid', FILTER_VALIDATE_INT)){
+        $minid = $_GET['minid'];
+        $sql_query = "SELECT id, client, description, cost, date FROM orders WHERE performer IS NULL AND id < $minid ORDER BY date DESC LIMIT 20";
+    }else{
+        $sql_query = "SELECT id, client, description, cost, date FROM orders WHERE performer IS NULL ORDER BY date DESC LIMIT 20";
+    }
     $result = mysql_db_query($db_params['schema'], $sql_query);
     $answers = [];
     while($row = mysql_fetch_assoc($result)){
