@@ -1,7 +1,7 @@
 <?php
 require_once('session_mgr.php');
 if(!isset($_SESSION['user_id'])){
-    die('{"status":"noauth"}');
+    end_script_immediately('{"status":"noauth"}');
 }
 session_write_close();
 require_once('config.php');
@@ -17,12 +17,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     }else{
         $sql_query = "SELECT id, client, description, cost, date FROM orders WHERE performer IS NULL ORDER BY date DESC LIMIT 20";
     }
-    $result = mysql_db_query($db_params['schema'], $sql_query);
+    $result = mysqli_query($connection, $sql_query);
     $answers = [];
-    while($row = mysql_fetch_assoc($result)){
+    while($row = mysqli_fetch_assoc($result)){
         $answers[] = $row;
     }
-    die(json_encode(['status'=>'ok', 'ts'=> time(), 'results'=>$answers]));
+    end_script_immediately(json_encode(['status'=>'ok', 'ts'=> time(), 'results'=>$answers]), $connection);
 }elseif($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ts']) && filter_input(INPUT_POST, 'ts', FILTER_VALIDATE_INT)){
     $db_events_params = $config['mysql']['events'];
     $start_time = time();
@@ -30,10 +30,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     while((time() - $start_time) < 25){
         $events = get_events($db_events_params, $_POST['ts']);
         if(count($events) > 0){
-            die(json_encode(['ts'=>time(), 'events'=>$events]));
+            end_script_immediately(json_encode(['ts'=>time(), 'events'=>$events]), $connection);
         }
         sleep(1);
     }
-    die(json_encode(['ts'=>time(), 'events'=>[]]));
+    end_script_immediately(json_encode(['ts'=>time(), 'events'=>[]]), $connection);
 }
-die('{"status":"invalid"}');
+end_script_immediately('{"status":"invalid"}', $connection);

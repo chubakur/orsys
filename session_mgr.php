@@ -21,11 +21,18 @@ function textHtmlify($text){
 }
 
 function create_mysql_connection($config, $permanent=false){
-    $connect = $permanent?"mysql_pconnect":"mysql_connect";
-    $connection = $connect($config['host'], $config['user'], $config['password']) or die('{"status":"invalid", "error":"db"}');
+    $host = ($permanent?'p:':'').$config['host'];
+    $connection = mysqli_connect($host, $config['user'], $config['password'], $config['schema'], $config['port']) or die('{"status":"invalid", "error":"db"}');
     return $connection;
 }
 
 function generate_csrf_token($salt){
     return md5(time().$salt);
+}
+
+function end_script_immediately($message){
+    foreach(func_get_args() as $connection){
+        mysqli_close($connection);
+    }
+    die($message);
 }
