@@ -54,6 +54,8 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             if(data.status == 'ok') {
                 $scope.form.description = undefined;
                 $scope.form.cost = undefined;
+            }else if(data.status == 'error'){
+                data.warn(data);
             }
         });
         promise.error(function (data){

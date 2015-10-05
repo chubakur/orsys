@@ -28,7 +28,7 @@ if(!$update_error){
 }
 $is_updated = mysqli_affected_rows($orders_connection);
 if(!$is_updated){
-    end_script_immediately('{"status":"error"}', $orders_connection);
+    end_script_immediately('{"status":"error", "msg":"ready"}', $orders_connection);
 }
 $db_users_params = $config['mysql']['users'];
 $users_connection = create_mysql_connection($db_users_params);
