@@ -22,6 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
             'description'=> $description,
             'cost'=> $cost,
             'client'=> $user_id,
+            'client_email'=> $_SESSION['email'],
             'id'=> $id
         ]);
         if(!$success){
