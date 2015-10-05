@@ -1,5 +1,5 @@
 <?php
-require_once('session_mgr.php');
+require_once('utils.php');
 
 function create_event($db_params, $event){
     $db_events_params = $db_params;

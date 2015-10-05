@@ -85,6 +85,8 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                    return order != selected_order;
                 });
                 auth.bill += parseInt(selected_order.cost);
+            }else if(data.status == 'error'){
+                $log.warn(data);
             }
         });
         promise.error(function (data){

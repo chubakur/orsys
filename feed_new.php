@@ -1,10 +1,11 @@
 <?php
-require_once('session_mgr.php');
+require('entry_point.php');
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'client'){
     end_script_immediately('{"status":"noauth"}');
 }
-require_once('config.php');
-require_once('events.php');
+require('config.php');
+require('events.php');
+require_once('utils.php');
 $db_params = $config['mysql']['orders'];
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset($_POST['cost']) && $_SESSION['role'] == 'client'){
     //валидация

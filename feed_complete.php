@@ -1,5 +1,5 @@
 <?php
-require_once('session_mgr.php');
+require('entry_point.php');
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'performer'){
     end_script_immediately('{"status":"noauth"}');
 }
@@ -8,7 +8,8 @@ if($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['order_id']) || !filter
 }
 $id = $_POST['order_id'];
 $user_id = $_SESSION['user_id'];
-require_once('config.php');
+require('config.php');
+require_once('utils.php');
 $db_orders_params = $config['mysql']['orders'];
 $orders_connection = create_mysql_connection($db_orders_params);
 $get_sql = "SELECT cost, performer FROM orders WHERE id=$id";
@@ -34,7 +35,7 @@ $db_users_params = $config['mysql']['users'];
 $users_connection = create_mysql_connection($db_users_params);
 $pay_sql = "UPDATE users SET bill=bill+$cost WHERE id=$user_id";
 $result = mysqli_query($users_connection, $pay_sql);
-require_once('events.php');
+require('events.php');
 if($result){
     $success = create_event($config['mysql']['events'], [
         'type'=> 'done',

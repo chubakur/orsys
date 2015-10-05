@@ -1,6 +1,7 @@
 <?php
-require_once('session_mgr.php');
-require_once('config.php');
+require('entry_point.php');
+require_once('utils.php');
+require('config.php');
 $db_params = $config['mysql']['users'];
 if(isset($_SESSION['user_id']) && isset($_SESSION['email']) && isset($_SESSION['role'])){
     $connection = create_mysql_connection($db_params);

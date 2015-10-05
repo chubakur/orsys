@@ -1,11 +1,12 @@
 <?php
-require_once('session_mgr.php');
+require('entry_point.php');
 if (!isset($_SESSION['user_id'])) {
     end_script_immediately('{"status":"noauth"}');
 }
 session_write_close();
-require_once('config.php');
-require_once('events.php');
+require('config.php');
+require_once('utils.php');
+require('events.php');
 $db_params = $config['mysql']['orders'];
 $connection = create_mysql_connection($db_params);
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -19,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $sql_cond = "WHERE performer IS NULL";
     }
     $sql_corpus = "SELECT orders.id, client, description, cost, date, users.email as client_email FROM orders JOIN orsys_users.users AS users ON users.id=client $sql_cond ORDER BY date DESC LIMIT 20";
-//    print_r($sql_corpus.'<br>');
     $result = mysqli_query($connection, $sql_corpus);
     $answers = [];
     while ($row = mysqli_fetch_assoc($result)) {
