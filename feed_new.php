@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
     }
     $connection = create_mysql_connection($db_params);
     $user_id = $_SESSION['user_id'];
-    mysqli_query($connection, "START TRANSACTION");
+    mysqli_begin_transaction($connection);
     $sql_query = "INSERT INTO orders (client, description, cost) VALUES ($user_id, '$description', $cost)";
     if(mysqli_query($connection, $sql_query)){
         $id = mysqli_insert_id($connection);
@@ -30,10 +30,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
             'id'=> $id
         ]);
         if(!$success){
-            mysqli_query($connection, "ROLLBACK");
+            mysqli_rollback($connection);
             end_script_immediately('{"status":"invalid"}', $connection);
         }
-        mysqli_query($connection, "COMMIT");
+        mysqli_commit($connection);
         end_script_immediately('{"status":"ok"}', $connection);
     }
     end_script_immediately('{"status":"invalid"}', $connection);

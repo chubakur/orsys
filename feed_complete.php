@@ -24,7 +24,7 @@ if(!$row || $row['performer'] != null){
 }
 $cost = $row['cost'];
 $users_connection = create_mysql_connection($config['mysql']['users']);
-mysqli_query($users_connection, "START TRANSACTION");
+mysqli_begin_transaction($users_connection);
 $get_bill = "SELECT bill FROM users WHERE id=$user_id FOR UPDATE";
 $result = mysqli_query($users_connection, $get_bill);
 if(!$result || ($row=mysqli_fetch_assoc($result)) == null){
@@ -32,20 +32,20 @@ if(!$result || ($row=mysqli_fetch_assoc($result)) == null){
 }
 $bill = $row['bill'];
 if($bill >= 400000000){
-    mysqli_query($users_connection, "ROLLBACK");
+    mysqli_rollback($users_connection);
     end_script_immediately('{"status":"error", "msg":"overflow"}', $orders_connection, $users_connection);
 }
 // атомарное обновление с одновременной проверкой. Она гарантирует нам отсутствие перетирания прошлого исполнителя.
 $update_sql = "UPDATE orders SET performer=$user_id WHERE id=$id AND performer is NULL";
 $update_error = mysqli_query($orders_connection, $update_sql);
 if(!$update_error){
-    mysqli_query($users_connection, "ROLLBACK");
+    mysqli_rollback($users_connection);
     end_script_immediately('{"status":"invalid"}', $orders_connection, $users_connection);
 }
 // здесь affected_rows показывает успех обновления. Если все ок, то 1. Если нас кто-то обогнал и выполнил его до нас - 0.
 $is_updated = mysqli_affected_rows($orders_connection);
 if(!$is_updated){
-    mysqli_query($users_connection, "ROLLBACK");
+    mysqli_rollback($users_connection);
     end_script_immediately('{"status":"error", "msg":"ready"}', $orders_connection, $users_connection);
 }
 
@@ -57,6 +57,6 @@ if($result){
         'type'=> 'done',
         'order_id'=> $id
     ]);
-    mysqli_query($users_connection, "COMMIT");
+    mysqli_commit($users_connection);
     end_script_immediately('{"status":"ok"}', $orders_connection, $users_connection);
 }
