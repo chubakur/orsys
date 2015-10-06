@@ -162,7 +162,7 @@
                 <div class="panel-body" ng-bind-html="order.trusted"></div>
                 <div class="panel-footer">
                     <span>Стоимость: {{ (order.cost / 100.0).toFixed(2) }}</span>
-                    <button ng-show="auth.role=='performer'" ng-click="completeOrder(order)" class="btn btn-sm btn-info pull-right" ng-disabled="auth.bill>=4000000">
+                    <button ng-show="auth.role=='performer'" ng-click="completeOrder(order)" class="btn btn-sm btn-info pull-right" ng-disabled="auth.bill>=400000000">
                         Выполнить работу
                     </button>
                     <div class="clearfix"></div>
