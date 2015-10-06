@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
     $description = textHtmlify($_POST['description']);
     $cost = $_POST['cost'];
     $user_id = $_SESSION['user_id'];
-    //старт транзакции
+    mysqli_query($connection, "START TRANSACTION");
     $sql_query = "INSERT INTO orders (client, description, cost) VALUES ($user_id, '$description', $cost)";
     if(mysqli_query($connection, $sql_query)){
         $id = mysqli_insert_id($connection);
@@ -27,12 +27,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
             'id'=> $id
         ]);
         if(!$success){
-            //откат
+            mysqli_query($connection, "ROLLBACK");
             end_script_immediately('{"status":"invalid"}', $connection);
         }
-        //коммит
+        mysqli_query($connection, "COMMIT");
         end_script_immediately('{"status":"ok"}', $connection);
     }
-    end_script_immediately('{"status":"error"}', $connection);
+    end_script_immediately('{"status":"invalid"}', $connection);
 }
-end_script_immediately('{"status":"invalid"}');
+end_script_immediately('{"status":"error"}');

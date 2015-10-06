@@ -23,6 +23,10 @@
     margin-bottom: 5px;
 }
 
+.alert-danger {
+    margin-top: 15px;
+}
+
 .glyphicon-refresh-animate {
     -animation: spin .7s infinite linear;
     -webkit-animation: spin2 .7s infinite linear;

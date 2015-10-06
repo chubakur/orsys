@@ -23,6 +23,10 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $scope.orders = [];
     $scope.is_loading = false;
     $scope.last_loaded = false;
+    $scope.alerts = [];
+    $scope.closeAlert = function (index){
+        $scope.alerts.splice(index, 1);
+    };
     function loadOrders(){
         $log.log("loadOrders");
         $scope.is_loading = true;
@@ -56,6 +60,8 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                 $scope.form.cost = undefined;
             }else if(data.status == 'error'){
                 data.warn(data);
+            }else if(data.status == 'invalid'){
+                $scope.alerts.push({msg: "server_error", type: "danger"})
             }
         });
         promise.error(function (data){
