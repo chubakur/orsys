@@ -27,6 +27,10 @@
     margin-top: 15px;
 }
 
+.form-alert {
+    margin-top: 5px;
+}
+
 .glyphicon-refresh-animate {
     -animation: spin .7s infinite linear;
     -webkit-animation: spin2 .7s infinite linear;

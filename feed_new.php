@@ -10,9 +10,12 @@ $db_params = $config['mysql']['orders'];
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset($_POST['cost']) && $_SESSION['role'] == 'client'){
     //валидация
     //конвертирование
-    $connection = create_mysql_connection($db_params);
     $description = textHtmlify($_POST['description']);
-    $cost = $_POST['cost'];
+    $cost = filter_input(INPUT_POST, 'cost', FILTER_VALIDATE_INT);
+    if($cost === false || $cost < 100 || $cost > 200000000){
+        end_script_immediately('{"status":"validate_error"}');
+    }
+    $connection = create_mysql_connection($db_params);
     $user_id = $_SESSION['user_id'];
     mysqli_query($connection, "START TRANSACTION");
     $sql_query = "INSERT INTO orders (client, description, cost) VALUES ($user_id, '$description', $cost)";

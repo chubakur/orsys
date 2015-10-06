@@ -53,7 +53,10 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
     $scope.makeOrder = function(descr, cost){
         if($scope.sending) return;
         $scope.sending = true;
-        var promise = $http.post("/feed_new", urlencode($scope.form), {headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}});
+        var promise = $http.post("/feed_new", urlencode({
+            description: $scope.form.description,
+            cost: parseFloat($scope.form.cost)*100
+        }), {headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}});
         promise.success(function (data){
             if(data.status == 'ok') {
                 $scope.form.description = undefined;
@@ -79,10 +82,17 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             size: size
         });
     };
+    $scope.showMoneyOverflowDialog = function (){
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'moneyOverflow.html',
+            controller: 'MoneyOverflowDialogController',
+        });
+    };
     $scope.autoStartLoginDialogOnce = function (){
         $scope.showLoginDialog();
         $scope.$$listeners.noauth = [];
-    }
+    };
     $scope.completeOrder = function(selected_order){
         var promise = $http.post("/feed_complete", urlencode({order_id: selected_order.id}), {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
         promise.success(function (data){
@@ -93,6 +103,12 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                 auth.bill += parseInt(selected_order.cost);
             }else if(data.status == 'error'){
                 $log.warn(data);
+            }else if(data.status == 'invalid'){
+                if(data.msg == 'overflow'){
+                    $scope.showMoneyOverflowDialog();
+                }else {
+                    $log.warn(data);
+                }
             }
         });
         promise.error(function (data){
@@ -251,6 +267,13 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
             $scope.quering = false;
         });
     };
+});
+
+
+orsysApp.controller('MoneyOverflowDialogController', function (auth, $scope, $modalInstance){
+    $scope.ok = function (){
+        $modalInstance.close();
+    }
 });
 
 orsysApp.controller('LoginController', function (auth, $scope, $interval, $http, $log){
