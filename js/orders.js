@@ -87,7 +87,14 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
         var modalInstance = $modal.open({
             animation: true,
             templateUrl: 'moneyOverflow.html',
-            controller: 'MoneyOverflowDialogController',
+            controller: 'OkController'
+        });
+    };
+    $scope.showDoneAlreadyDialog = function (){
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'doneAlready.html',
+            controller: 'OkController'
         });
     };
     $scope.autoStartLoginDialogOnce = function (){
@@ -105,7 +112,9 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
             }else if(data.status == 'error'){
                 if(data.msg == 'overflow') {
                     $scope.showMoneyOverflowDialog();
-                }else {
+                }else if(data.msg == 'done_already'){
+                    $scope.showDoneAlreadyDialog();
+                } else {
                     $log.warn(data);
                 }
             }else if(data.status == 'invalid'){
@@ -271,7 +280,7 @@ orsysApp.controller('LoginDialogController', function (auth, $scope, $modal, $mo
 });
 
 
-orsysApp.controller('MoneyOverflowDialogController', function (auth, $scope, $modalInstance){
+orsysApp.controller('OkController', function (auth, $scope, $modalInstance){
     $scope.ok = function (){
         $modalInstance.close();
     }

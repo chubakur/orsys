@@ -101,6 +101,17 @@
         <button class="btn btn-default" type="button" ng-click="ok()">Ладно</button>
     </div>
 </script>
+<script type="text/ng-template" id="doneAlready.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Задача уже выполнена</h3>
+    </div>
+    <div class="modal-body">
+        Кто-то выполнил это задание раньше вас, не расстраивайтесь.
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="ok()">ОК</button>
+    </div>
+</script>
 <div class="container" infinite-scroll="loadMoreOrders()">
     <div class="row">
         <nav class="navbar navbar-default">
