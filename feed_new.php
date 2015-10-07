@@ -1,7 +1,8 @@
 <?php
 require('entry_point.php');
+$handlers = [];
 if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'client'){
-    end_script_immediately('{"status":"noauth"}');
+    end_script_immediately('{"status":"noauth"}', $handlers);
 }
 require('config.php');
 require('events.php');
@@ -13,9 +14,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
     $description = textHtmlify($_POST['description']);
     $cost = filter_input(INPUT_POST, 'cost', FILTER_VALIDATE_INT);
     if($cost === false || $cost < 100 || $cost > 200000000){
-        end_script_immediately('{"status":"validate_error"}');
+        end_script_immediately('{"status":"validate_error"}', $handlers);
     }
-    $connection = create_mysql_connection($db_params);
+    $connection = create_mysql_connection($db_params, $handlers);
     $user_id = $_SESSION['user_id'];
     mysqli_begin_transaction($connection);
     $sql_query = "INSERT INTO orders (client, description, cost) VALUES ($user_id, '$description', $cost)";
@@ -31,11 +32,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
         ]);
         if(!$success){
             mysqli_rollback($connection);
-            end_script_immediately('{"status":"invalid"}', $connection);
+            end_script_immediately('{"status":"invalid"}', $handlers);
         }
         mysqli_commit($connection);
-        end_script_immediately('{"status":"ok"}', $connection);
+        end_script_immediately('{"status":"ok"}', $handlers);
     }
-    end_script_immediately('{"status":"invalid"}', $connection);
+    end_script_immediately('{"status":"invalid"}', $handlers);
 }
-end_script_immediately('{"status":"error"}');
+end_script_immediately('{"status":"error"}', $handlers);

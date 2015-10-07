@@ -1,14 +1,15 @@
 <?php
 require('entry_point.php');
+$handlers = [];
 if (!isset($_SESSION['user_id'])) {
-    end_script_immediately('{"status":"noauth"}');
+    end_script_immediately('{"status":"noauth"}', $handlers);
 }
 session_write_close();
 require('config.php');
 require_once('utils.php');
 require('events.php');
 $db_params = $config['mysql']['orders'];
-$connection = create_mysql_connection($db_params);
+$connection = create_mysql_connection($db_params, $handlers);
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     //валидация
     //обновляем
@@ -25,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     while ($row = mysqli_fetch_assoc($result)) {
         $answers[] = $row;
     }
-    end_script_immediately(json_encode(['status' => 'ok', 'ts' => time(), 'results' => $answers]), $connection);
+    end_script_immediately(json_encode(['status' => 'ok', 'ts' => time(), 'results' => $answers]), $handlers);
 } elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ts']) && filter_input(INPUT_POST, 'ts', FILTER_VALIDATE_INT)) {
     $db_events_params = $config['mysql']['events'];
     $start_time = time();
@@ -33,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     while ((time() - $start_time) < 25) {
         $events = get_events($db_events_params, $_POST['ts']);
         if (count($events) > 0) {
-            end_script_immediately(json_encode(['ts' => time(), 'events' => $events]), $connection);
+            end_script_immediately(json_encode(['ts' => time(), 'events' => $events]), $handlers);
         }
         sleep(1);
     }
-    end_script_immediately(json_encode(['ts' => time(), 'events' => []]), $connection);
+    end_script_immediately(json_encode(['ts' => time(), 'events' => []]), $handlers);
 }
-end_script_immediately('{"status":"invalid"}', $connection);
+end_script_immediately('{"status":"invalid"}', $handlers);
