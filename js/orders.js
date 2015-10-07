@@ -18,6 +18,7 @@ orsysApp.factory('auth', function() {
 });
 
 orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $interval, $log, $http) {
+    $scope.tax = 5;
     $scope.auth = auth;
     $log.info("OrdersController init");
     $scope.orders = [];
@@ -100,15 +101,15 @@ orsysApp.controller('OrdersController', function (auth, $scope, $sce, $modal, $i
                 $scope.orders = $scope.orders.filter(function (order){
                    return order != selected_order;
                 });
-                auth.bill += parseInt(selected_order.cost);
+                auth.bill += parseInt((selected_order.cost*(100-$scope.tax))/100);
             }else if(data.status == 'error'){
-                $log.warn(data);
-            }else if(data.status == 'invalid'){
-                if(data.msg == 'overflow'){
+                if(data.msg == 'overflow') {
                     $scope.showMoneyOverflowDialog();
                 }else {
                     $log.warn(data);
                 }
+            }else if(data.status == 'invalid'){
+                $log.warn(data);
             }
         });
         promise.error(function (data){

@@ -35,6 +35,7 @@ if($bill >= 400000000){
     mysqli_rollback($users_connection);
     end_script_immediately('{"status":"error", "msg":"overflow"}', $orders_connection, $users_connection);
 }
+$new_bill = $bill + get_percents($cost, 95);
 // атомарное обновление с одновременной проверкой. Она гарантирует нам отсутствие перетирания прошлого исполнителя.
 $update_sql = "UPDATE orders SET performer=$user_id WHERE id=$id AND performer is NULL";
 $update_error = mysqli_query($orders_connection, $update_sql);
@@ -46,10 +47,10 @@ if(!$update_error){
 $is_updated = mysqli_affected_rows($orders_connection);
 if(!$is_updated){
     mysqli_rollback($users_connection);
-    end_script_immediately('{"status":"error", "msg":"ready"}', $orders_connection, $users_connection);
+    end_script_immediately('{"status":"error", "msg":"done_already"}', $orders_connection, $users_connection);
 }
 
-$pay_sql = "UPDATE users SET bill=bill+$cost WHERE id=$user_id";
+$pay_sql = "UPDATE users SET bill=$new_bill WHERE id=$user_id";
 $result = mysqli_query($users_connection, $pay_sql);
 require('events.php');
 if($result){
@@ -59,4 +60,10 @@ if($result){
     ]);
     mysqli_commit($users_connection);
     end_script_immediately('{"status":"ok"}', $orders_connection, $users_connection);
+}else{
+    // если вдруг мы не смогли начислить денег, то должны обратно "разделать" задачу
+    $revert_update_sql = "UPDATE orders SET performer=NULL WHERE id=$id AND performer=$user_id";
+    mysqli_query($orders_connection, $revert_update_sql);
+    mysqli_rollback($users_connection);
+    end_script_immediately('{"status":"invalid"}', $orders_connection, $users_connection);
 }

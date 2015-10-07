@@ -29,3 +29,7 @@ function end_script_immediately($message){
     }
     die($message);
 }
+
+function get_percents($value, $percents){
+    return round(($value * $percents)/100);
+}
