@@ -13,6 +13,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['description']) && isset
     //конвертирование
     $description = textHtmlify($_POST['description']);
     $cost = filter_input(INPUT_POST, 'cost', FILTER_VALIDATE_INT);
+    // стоимость должна быть не меньше рубля и не более двух миллионов
     if($cost === false || $cost < 100 || $cost > 200000000){
         end_script_immediately('{"status":"validate_error"}', $handlers);
     }

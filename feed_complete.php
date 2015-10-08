@@ -32,6 +32,7 @@ if(!$result || ($row=mysqli_fetch_assoc($result)) == null){
     end_script_immediately('{"status":"invalid"}', $handlers);
 }
 $bill = $row['bill'];
+// счет исполнителя не может быть больше четырех миллионов рублей при выполнении нового задания.
 if($bill >= 400000000){
     mysqli_rollback($users_connection);
     end_script_immediately('{"status":"error", "msg":"overflow"}', $handlers);
